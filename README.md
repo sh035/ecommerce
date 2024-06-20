@@ -99,6 +99,9 @@ Spring Boot + JPA를 활용한 다양한 의류를 판매하는 B2C 방식 쇼�
 2. 실시간 상담 문의 (Spring Boot Web Socket)
 3. 최근 본 상품 (Cookie or Session)
 
+## ERD
+![ERD](doc/img/erd.png)
+
 ## Trouble Shooting
 [go to the trouble shooting section](TROUBLE_SHOOTING.md)
 
