@@ -26,8 +26,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-//TODO oauth2 회원 전화번호 입력, 회원 탈퇴
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
