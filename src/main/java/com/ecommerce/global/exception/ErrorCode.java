@@ -29,8 +29,11 @@ public enum ErrorCode {
     NOT_VERIFY_EMAIL("이메일 인증을 완료해주세요."),
 
     // Category
-    NOT_FOUND_CATEGORY("존재하지 않는 카테고리 입니다."),
-    NOT_FOUND_PARENT_CATEGORY("부모 카테고리가 존재하지 않습니다.")
+    NOT_FOUND_CATEGORY("존재하지 않는 카테고리입니다."),
+    NOT_FOUND_PARENT_CATEGORY("부모 카테고리가 존재하지 않습니다."),
+
+    // Product
+    NOT_FOUND_PRODUCT("존재하지 않는 상품입니다.")
     ;
 
     private final String description;
