@@ -23,16 +23,14 @@ public class MailController {
 
   @PostMapping("/mail/send")
   public String emailSend(@RequestBody @Valid EmailRequestDto dto) throws Exception {
-    log.info("이메일 인증 이메일 : " + dto.getEmail());
+    log.info("이메일 인증 이메일 : {}" + dto.getEmail());
     return mailService.sendMessage(dto.getEmail());
   }
 
   @PostMapping("/mail/authcheck")
-  public boolean authCheck(@RequestBody @Valid EmailCheckDto dto) {
+  public void authCheck(@RequestBody @Valid EmailCheckDto dto) {
     Boolean check = mailService.checkAuthNum(dto.getEmail(), dto.getAuthNum());
-    if (check) {
-      return true;
-    } else {
+    if (!check) {
       throw new CustomException(ErrorCode.NOT_MATCH_AUTH);
     }
   }
