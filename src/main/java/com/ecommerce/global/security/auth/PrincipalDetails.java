@@ -1,6 +1,5 @@
 package com.ecommerce.global.security.auth;
 
-import com.ecommerce.member.domain.entity.Member;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;

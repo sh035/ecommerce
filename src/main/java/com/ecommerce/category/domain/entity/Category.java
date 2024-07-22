@@ -1,6 +1,5 @@
 package com.ecommerce.category.domain.entity;
 
-import com.ecommerce.category.domain.dto.CategoryDto;
 import com.ecommerce.category.domain.dto.CategoryUpdateDto;
 import com.ecommerce.global.entity.BaseTime;
 import jakarta.persistence.Entity;
