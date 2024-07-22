@@ -2,11 +2,12 @@ package com.ecommerce.mail.service;
 
 import com.ecommerce.global.exception.CustomException;
 import com.ecommerce.global.exception.ErrorCode;
-import com.ecommerce.config.RedisUtil;
+import com.ecommerce.config.RedisService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -16,8 +17,11 @@ import org.springframework.stereotype.Service;
 public class MailService {
 
   private final JavaMailSender mailSender;
-  private final RedisUtil redisUtil;
+  private final RedisService redisUtil;
   private String authNum;
+
+  @Value("${spring.email.email_expiration_time}")
+  private long emailExpireTime;
 
   public String sendMessage(String sendEmail) {
 
@@ -52,7 +56,7 @@ public class MailService {
       throw new CustomException(ErrorCode.EMAIL_DELIVERY_FAILED);
     }
 
-    redisUtil.setDataExpire(authNum, to, 60 * 5L);
+    redisUtil.setDataExpire(authNum, to, emailExpireTime);
   }
 
   public String createCode() {
@@ -72,13 +76,7 @@ public class MailService {
   }
 
   public boolean checkAuthNum(String email, String authNum) {
-    if (redisUtil.getData(authNum) == null) {
-      return false;
-    } else if (redisUtil.getData(authNum).equals(email)) {
-      return true;
-    } else {
-      return false;
-    }
+    return email.equals(redisUtil.getData(authNum));
   }
 
 }
