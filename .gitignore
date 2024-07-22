@@ -21,6 +21,7 @@ bin/
 /src/main/resources/application-oauth.yml
 /src/main/resources/application-jwt.yml
 /src/main/resources/application-redis.yml
+/src/main/resources/application-email.yml
 
 .idea
 *.iws
