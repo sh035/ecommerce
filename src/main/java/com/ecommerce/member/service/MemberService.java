@@ -1,6 +1,6 @@
 package com.ecommerce.member.service;
 
-import com.ecommerce.config.RedisUtil;
+import com.ecommerce.config.RedisService;
 import com.ecommerce.global.exception.CustomException;
 import com.ecommerce.global.exception.ErrorCode;
 import com.ecommerce.global.security.jwt.JwtToken;
@@ -36,7 +36,7 @@ public class MemberService {
   private final PrincipalDetailService principalDetailService;
   private final TokenProvider tokenProvider;
   private final MailService mailService;
-  private final RedisUtil redisUtil;
+  private final RedisService redisUtil;
 
   @Transactional
   public MemberSignupDto signUp(MemberSignupDto dto) {
@@ -108,21 +108,26 @@ public class MemberService {
   }
 
   @Transactional
-  public MemberDto updatePhone(Member member, MemberOAuthUpdateDto dto) {
+  public MemberDto updatePhone(Long memberId, MemberOAuthUpdateDto dto) {
+    Member member = getMember(memberId);
     member.setPhone(dto.getPhone());
 
     return MemberDto.fromEntity(memberRepository.save(member));
   }
 
+
   @Transactional
-  public MemberDto update(Member member, MemberUpdateDto dto) {
+  public MemberDto update(Long memberId, MemberUpdateDto dto) {
+    Member member = getMember(memberId);
     member.update(dto, passwordEncoder);
 
     return MemberDto.fromEntity(memberRepository.save(member));
   }
 
   @Transactional
-  public boolean withdrawal(Member member, MemberWithdrawalDto dto) {
+  public boolean withdrawal(Long memberId, MemberWithdrawalDto dto) {
+    Member member = getMember(memberId);
+
     if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
       throw new CustomException(ErrorCode.NOT_MATCH_PASSWORD);
     }
@@ -144,5 +149,12 @@ public class MemberService {
     if (memberRepository.existsByNickname(nickname)) {
       throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
     }
+  }
+
+  // 유저 불러오기
+  private Member getMember(Long memberId) {
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+    return member;
   }
 }

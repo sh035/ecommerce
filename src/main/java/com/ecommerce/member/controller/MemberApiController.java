@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,18 +42,18 @@ public class MemberApiController {
   @PutMapping("/update/OAuth2")
   public ResponseEntity<?> updateOAuth2(@AuthenticationPrincipal PrincipalDetails principalDetails,
       @RequestBody MemberOAuthUpdateDto dto) {
-    return ResponseEntity.ok(memberService.updatePhone(principalDetails.getMember(), dto));
+    return ResponseEntity.ok(memberService.updatePhone(principalDetails.getId(), dto));
   }
 
   @PutMapping("/update")
   public ResponseEntity<?> update(@AuthenticationPrincipal PrincipalDetails principalDetails
       , @RequestBody MemberUpdateDto dto) {
-    return ResponseEntity.ok(memberService.update(principalDetails.getMember() ,dto));
+    return ResponseEntity.ok(memberService.update(principalDetails.getId() ,dto));
   }
 
   @DeleteMapping("/withdrawal")
   public ResponseEntity<?> withdrawal(@AuthenticationPrincipal PrincipalDetails principalDetails,
       @RequestBody MemberWithdrawalDto dto) {
-    return ResponseEntity.ok(memberService.withdrawal(principalDetails.getMember(), dto));
+    return ResponseEntity.ok(memberService.withdrawal(principalDetails.getId(), dto));
   }
 }

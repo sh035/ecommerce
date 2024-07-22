@@ -13,16 +13,29 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 @Getter
 @Builder
 public class PrincipalDetails implements OAuth2User, UserDetails {
-  private Member member;
+  private Long id;
+  private String email;
+  private String password;
+  private String role;
+  private String nickname;
   private Map<String, Object> attributes;
 
   // 일반 로그인
-  public PrincipalDetails(Member member) {
-    this.member = member;
+  public PrincipalDetails(Long id, String email, String password, String role, String nickname) {
+    this.id = id;
+    this.email = email;
+    this.password = password;
+    this.role = role;
+    this.nickname = nickname;
   }
+
   // OAuth2 로그인
-  public PrincipalDetails(Member member, Map<String, Object> attributes) {
-    this.member = member;
+  public PrincipalDetails(Long id, String email, String password, String role, String nickname, Map<String, Object> attributes) {
+    this.id = id;
+    this.email = email;
+    this.password = password;
+    this.role = role;
+    this.nickname = nickname;
     this.attributes = attributes;
   }
 
@@ -35,15 +48,13 @@ public class PrincipalDetails implements OAuth2User, UserDetails {
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     Collection<GrantedAuthority> collection = new ArrayList<>();
-
-    collection.add((GrantedAuthority) () -> member.getRole().toString());
-
+    collection.add((GrantedAuthority) () -> role);
     return collection;
   }
 
   @Override
   public String getName() {
-    return member.getNickname();
+    return nickname;
   }
 
   @Override
@@ -68,11 +79,11 @@ public class PrincipalDetails implements OAuth2User, UserDetails {
 
   @Override
   public String getUsername() {
-    return member.getEmail();
+    return email;
   }
 
   @Override
   public String getPassword() {
-    return member.getPassword();
+    return password;
   }
 }
