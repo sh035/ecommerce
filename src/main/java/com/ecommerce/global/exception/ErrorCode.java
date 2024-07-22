@@ -33,7 +33,13 @@ public enum ErrorCode {
     NOT_FOUND_PARENT_CATEGORY("부모 카테고리가 존재하지 않습니다."),
 
     // Product
-    NOT_FOUND_PRODUCT("존재하지 않는 상품입니다.")
+    NOT_FOUND_PRODUCT("존재하지 않는 상품입니다."),
+
+    // Image
+    NOT_FOUND_IMAGE("존재하지 않는 이미지입니다."),
+    UPLOAD_ERROR_IMAGE("이미지 업로드를 실패했습니다."),
+    REQUIRED_IMAGE("이미지가 필요합니다."),
+    VALID_ERROR_IMAGE("유효하지 않은 이미지 파일 형식입니다.")
     ;
 
     private final String description;

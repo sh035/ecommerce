@@ -16,5 +16,5 @@ spring:
       hibernate.dialect: org.hibernate.dialect.MySQLDialect
 
   profiles:
-    include: oauth, jwt, redis, email
+    include: oauth, jwt, redis, email, aws
 
