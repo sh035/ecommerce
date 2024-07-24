@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,14 +24,14 @@ public class ProductController {
   private final ProductService productService;
 
   @PostMapping("/create")
-  public ResponseEntity<?> create(@RequestPart ProductCreateDto dto,
-      @RequestPart List<MultipartFile> images) {
+  public ResponseEntity<?> create(@RequestPart("dto") ProductCreateDto dto,
+      @RequestPart("images") List<MultipartFile> images) {
     return ResponseEntity.ok(productService.createProduct(dto, images));
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestPart ProductUpdateDto dto,
-      @RequestPart List<MultipartFile> images) {
+  public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestPart("dto") ProductUpdateDto dto,
+      @RequestPart("images") List<MultipartFile> images) {
     return ResponseEntity.ok(productService.updateProduct(id, dto, images));
   }
 
