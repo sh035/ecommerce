@@ -29,13 +29,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class TokenProvider {
 
-  @Value("${jwt.secret_key}")
+  @Value("${spring.jwt.secret_key}")
   private String secretKey;
 
-  @Value("${jwt.access.expiration}")
+  @Value("${spring.jwt.access.expiration}")
   private Long accessExpiration;
 
-  @Value("${jwt.refresh.expiration}")
+  @Value("${spring.jwt.refresh.expiration}")
   private Long refreshExpiration;
 
   private Key key;
