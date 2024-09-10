@@ -1,7 +1,6 @@
 package com.ecommerce.member.controller;
 
 import com.ecommerce.global.security.auth.PrincipalDetails;
-import com.ecommerce.member.domain.dto.MemberConfirmEmailDto;
 import com.ecommerce.member.domain.dto.MemberOAuthUpdateDto;
 import com.ecommerce.member.domain.dto.MemberSignInRequestDto;
 import com.ecommerce.member.domain.dto.MemberSignInResponseDto;
@@ -38,14 +37,7 @@ public class MemberApiController {
             .body("회원가입이 완료되었습니다.");
     }
 
-    @PostMapping("/email/confirm")
-    public ResponseEntity<String> confirmEmail(@RequestBody @Valid MemberConfirmEmailDto dto) {
-        memberService.confirmEmail(dto);
-        return ResponseEntity.status(HttpStatus.OK)
-            .body("이메일 인증이 완료되었습니다.");
-    }
-
-    @PostMapping("/sign-in")
+    @PostMapping("/login")
     public ResponseEntity<MemberSignInResponseDto> signIn(@RequestBody @Valid MemberSignInRequestDto dto) {
         return ResponseEntity.status(HttpStatus.OK)
         .body(memberService.signIn(dto));

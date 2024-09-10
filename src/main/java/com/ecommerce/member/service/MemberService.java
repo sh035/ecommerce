@@ -1,15 +1,12 @@
 package com.ecommerce.member.service;
 
 import com.ecommerce.global.security.jwt.JwtRedisService;
-import com.ecommerce.mail.service.MailRedisService;
 import com.ecommerce.global.exception.CustomException;
 import com.ecommerce.global.exception.ErrorCode;
 import com.ecommerce.global.security.jwt.JwtTokenDto;
 import com.ecommerce.global.security.jwt.TokenProvider;
-import com.ecommerce.mail.service.MailService;
+import com.ecommerce.mail.service.MailRedisService;
 import com.ecommerce.member.domain.dto.MemberOAuthUpdateDto;
-import com.ecommerce.member.domain.dto.MemberConfirmEmailDto;
-import com.ecommerce.member.domain.dto.MemberDto;
 import com.ecommerce.member.domain.dto.MemberSignInRequestDto;
 import com.ecommerce.member.domain.dto.MemberSignInResponseDto;
 import com.ecommerce.member.domain.dto.MemberSignupDto;
@@ -41,9 +38,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
-    private final MailService mailService;
-    private final MailRedisService mailRedisService;
     private final JwtRedisService jwtRedisService;
+    private final MailRedisService mailRedisService;
 
     @Transactional
     public void signUp(MemberSignupDto dto) {
@@ -51,37 +47,21 @@ public class MemberService {
         checkDuplicatedEmail(dto.getEmail());
         checkDuplicatedMemberId(dto.getMemberId());
 
-        mailService.sendMessage(dto.getEmail());
+        if (!dto.getEmail().equals(mailRedisService.getData(dto.getAuthNum()))) {
+            throw new CustomException(ErrorCode.NOT_MATCH_AUTH);
+        }
 
-        MemberSignupDto.fromEntity(
+        MemberSignupDto.from(
             memberRepository.save(Member.builder()
                 .memberId(dto.getMemberId())
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .phone(dto.getPhone())
-                .point(0)
-                .authProvider(null)
-                .role(Role.GUEST)
-                .deletedAt(null)
+                .role(Role.USER)
                 .build())
         );
-    }
 
-    @Transactional
-    public void confirmEmail(MemberConfirmEmailDto dto) {
-        Member member = memberRepository.findByEmail(dto.getEmail())
-            .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
-
-        if (!mailService.checkAuthNum(dto.getEmail(), dto.getAuthNum())) {
-            throw new CustomException(ErrorCode.NOT_MATCH_AUTH);
-        }
-        if (member.getRole() == Role.USER) {
-            throw new CustomException(ErrorCode.ALREADY_VERIFY);
-        }
-        if (mailRedisService.getData(dto.getAuthNum()) == null) {
-            throw new CustomException(ErrorCode.EXPIRE_CODE);
-        }
-        member.changeRole(Role.USER);
+        mailRedisService.deleteData(dto.getAuthNum());
     }
 
     @Transactional
@@ -113,12 +93,12 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberDto updatePhone(String memberId, MemberOAuthUpdateDto dto) {
+    public void updatePhone(String memberId, MemberOAuthUpdateDto dto) {
         Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
         member.updatePhone(dto.getPhone());
 
-        return MemberDto.fromEntity(memberRepository.save(member));
+        memberRepository.save(member);
     }
 
     @Transactional

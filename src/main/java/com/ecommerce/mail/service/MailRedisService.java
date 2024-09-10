@@ -1,4 +1,4 @@
-package com.ecommerce.config;
+package com.ecommerce.mail.service;
 
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
@@ -8,17 +8,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class RedisUtil {
+public class MailRedisService {
   private final StringRedisTemplate redisTemplate;
 
   public String getData(String key) {
     ValueOperations<String, String> ops = redisTemplate.opsForValue();
     return ops.get(key);
-  }
-
-  public void setData(String key, String value) {
-    ValueOperations<String, String> ops = redisTemplate.opsForValue();
-    ops.set(key, value);
   }
 
   public void setDataExpire(String key, String value, long duration) {
