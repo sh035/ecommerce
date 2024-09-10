@@ -20,7 +20,7 @@ spring:
     port: ${EMAIL_PORT}
     username: ${EMAIL_USERNAME}
     password: ${EMAIL_PASSWORD}
-    email_expiration_time: 300
+    expiration_time: 300
 
   jwt:
     secret_key: ${JWT_SECRET_KEY}
