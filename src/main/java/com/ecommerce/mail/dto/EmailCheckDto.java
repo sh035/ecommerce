@@ -1,7 +1,8 @@
 package com.ecommerce.mail.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,14 +10,17 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class EmailCheckDto {
-  @Email
-  @NotEmpty(message = "이메일을 입력해 주세요")
-  private String email;
 
-  @NotEmpty(message = "인증 번호를 입력해 주세요")
-  private String authNum;
+    @NotBlank(message = "이메일을 입력해주세요.")
+    @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
+        message = "유효한 이메일 주소를 입력해주세요.")
+    private String email;
+
+    @NotBlank(message = "인증 번호를 입력해주세요.")
+    @Pattern(regexp = "^[0-9]{4}$", message = "인증 번호는 4자리 숫자여야 합니다.")
+    private String authNum;
 
 }
