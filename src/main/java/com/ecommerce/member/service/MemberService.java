@@ -51,15 +51,13 @@ public class MemberService {
             throw new CustomException(ErrorCode.NOT_MATCH_AUTH);
         }
 
-        MemberSignupDto.from(
-            memberRepository.save(Member.builder()
-                .memberId(dto.getMemberId())
-                .email(dto.getEmail())
-                .password(passwordEncoder.encode(dto.getPassword()))
-                .phone(dto.getPhone())
-                .role(Role.USER)
-                .build())
-        );
+        memberRepository.save(Member.builder()
+            .memberId(dto.getMemberId())
+            .email(dto.getEmail())
+            .password(passwordEncoder.encode(dto.getPassword()))
+            .phone(dto.getPhone())
+            .role(Role.USER)
+            .build());
 
         mailRedisService.deleteData(dto.getAuthNum());
     }
@@ -73,9 +71,7 @@ public class MemberService {
         if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
             throw new CustomException(ErrorCode.NOT_MATCH_PASSWORD);
         }
-        if (member.getRole() == Role.GUEST) {
-            throw new CustomException(ErrorCode.NOT_VERIFY_EMAIL);
-        }
+
         List<GrantedAuthority> authorities = Collections.singletonList(
             new SimpleGrantedAuthority(member.getRole().toString()));
 
@@ -106,11 +102,19 @@ public class MemberService {
         Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
 
-        member.update(dto, passwordEncoder);
+        if (passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
+            throw new CustomException(ErrorCode.DUPLICATED_PASSWORD);
+        }
+
+        if (dto.getPhone().equals(member.getPhone())) {
+            throw new CustomException(ErrorCode.DUPLICATED_PHONE);
+        }
+
+        member.update(passwordEncoder.encode(dto.getPassword()), dto.getPhone());
         memberRepository.save(member);
     }
 
-    public void logout(String memberId, HttpServletRequest request,HttpServletResponse response) {
+    public void logout(String memberId, HttpServletRequest request) {
         String accessToken = tokenProvider.resolveToken(request);
         long accessTokenExpiration = tokenProvider.getExpiration(accessToken);
 
@@ -139,7 +143,7 @@ public class MemberService {
         }
     }
 
-    // 닉네임 중복 확인
+    // 아이디 중복 확인
     private void checkDuplicatedMemberId(String memberId) {
         if (memberRepository.existsByMemberId(memberId)) {
             throw new CustomException(ErrorCode.DUPLICATED_MEMBER_ID);
