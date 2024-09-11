@@ -63,8 +63,8 @@ public class MemberApiController {
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@AuthenticationPrincipal PrincipalDetails principalDetails,
-        HttpServletRequest request, HttpServletResponse response) {
-        memberService.logout(principalDetails.getName(), request, response);
+        HttpServletRequest request) {
+        memberService.logout(principalDetails.getName(), request);
 
         return ResponseEntity.status(HttpStatus.OK)
             .body("로그아웃 되었습니다.");
