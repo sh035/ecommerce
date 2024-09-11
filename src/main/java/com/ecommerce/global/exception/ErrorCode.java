@@ -10,6 +10,8 @@ public enum ErrorCode {
     // Member
     DUPLICATED_EMAIL("이미 존재하는 이메일입니다."),
     DUPLICATED_MEMBER_ID("이미 존재하는 아이디입니다."),
+    DUPLICATED_PASSWORD("기존 패스워드와 동일합니다."),
+    DUPLICATED_PHONE("기존 전화번호와 동일합니다."),
     NOT_MATCH_PASSWORD("비밀번호가 일치하지 않습니다."),
     DELETED_MEMBER("탈퇴한 회원입니다."),
     NOT_FOUND_MEMBER("존재하지 않는 회원입니다."),
