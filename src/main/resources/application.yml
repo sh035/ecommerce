@@ -11,16 +11,16 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate.dialect: org.hibernate.dialect.MySQLDialect
 
   email:
-    host: smtp.gmail.com
-    port: 587
+    host: ${EMAIL_HOST}
+    port: ${EMAIL_PORT}
     username: ${EMAIL_USERNAME}
     password: ${EMAIL_PASSWORD}
-    email_expiration_time: 300
+    expiration_time: 300
 
   jwt:
     secret_key: ${JWT_SECRET_KEY}

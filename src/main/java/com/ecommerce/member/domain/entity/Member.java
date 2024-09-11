@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
@@ -14,22 +15,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@SQLRestriction("deleted_at IS NULL")
 public class Member extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String memberId;
+
     private String email;
 
     private String password;
-    private String nickname;
 
     private String phone;
 
     private int point;
 
     private String authProvider;
+    private String providerId;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -38,9 +42,9 @@ public class Member extends BaseTime {
 
     public Member toEntity(String encodedPassword) {
         return Member.builder()
+                .memberId(memberId)
                 .email(email)
                 .password(encodedPassword)
-                .nickname(nickname)
                 .phone(phone)
                 .point(point)
                 .authProvider(authProvider)
@@ -49,21 +53,16 @@ public class Member extends BaseTime {
                 .build();
     }
 
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public void setPhone(String phone) {
+    public void updatePhone(String phone) {
         this.phone = phone;
     }
 
-    public void setDeletedAt(LocalDateTime deletedAt) {
+    public void withdrawal(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
 
-    public void update(MemberUpdateDto dto, PasswordEncoder passwordEncoder) {
-        this.nickname = dto.getNickname();
-        this.password = passwordEncoder.encode(dto.getPassword());
-        this.phone = dto.getPhone();
+    public void update(String password, String phone) {
+        this.password = password;
+        this.phone = phone;
     }
 }
