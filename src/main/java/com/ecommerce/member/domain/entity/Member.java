@@ -53,10 +53,6 @@ public class Member extends BaseTime {
                 .build();
     }
 
-    public void changeRole(Role role) {
-        this.role = role;
-    }
-
     public void updatePhone(String phone) {
         this.phone = phone;
     }
@@ -65,8 +61,8 @@ public class Member extends BaseTime {
         this.deletedAt = deletedAt;
     }
 
-    public void update(MemberUpdateDto dto, PasswordEncoder passwordEncoder) {
-        this.password = passwordEncoder.encode(dto.getPassword());
-        this.phone = dto.getPhone();
+    public void update(String password, String phone) {
+        this.password = password;
+        this.phone = phone;
     }
 }
