@@ -2,6 +2,7 @@ package com.ecommerce.mail.service;
 
 import com.ecommerce.global.exception.CustomException;
 import com.ecommerce.global.exception.ErrorCode;
+
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.util.Random;

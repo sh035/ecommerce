@@ -13,6 +13,10 @@ java {
 	}
 }
 
+jar {
+	enabled = false
+}
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -38,6 +42,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	// AWS S3
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'

@@ -23,12 +23,25 @@ public enum ErrorCode {
     INVALID_TOKEN("잘못된 형식의 토큰입니다."),
     INVALID_SIGNATURE("유효하지 않은 서명입니다."),
 
-    // mail
+    // Mail
     EMAIL_DELIVERY_FAILED("이메일 인증코드 전송 실패"),
     NOT_MATCH_AUTH("인증코드가 일치하지 않습니다."),
     ALREADY_VERIFY("이미 인증이 완료되었습니다."),
     EXPIRE_CODE("인증 시간이 만료되었습니다."),
-    NOT_VERIFY_EMAIL("이메일 인증을 완료해주세요.")
+    NOT_VERIFY_EMAIL("이메일 인증을 완료해주세요."),
+
+    // Category
+    NOT_FOUND_CATEGORY("존재하지 않는 카테고리입니다."),
+    NOT_FOUND_PARENT_CATEGORY("부모 카테고리가 존재하지 않습니다."),
+
+    // Product
+    NOT_FOUND_PRODUCT("존재하지 않는 상품입니다."),
+
+    // Image
+    NOT_FOUND_IMAGE("존재하지 않는 이미지입니다."),
+    UPLOAD_ERROR_IMAGE("이미지 업로드를 실패했습니다."),
+    REQUIRED_IMAGE("이미지가 필요합니다."),
+    VALID_ERROR_IMAGE("유효하지 않은 이미지 파일 형식입니다.")
     ;
 
     private final String description;

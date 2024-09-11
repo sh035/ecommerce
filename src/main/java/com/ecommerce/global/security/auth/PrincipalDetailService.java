@@ -26,5 +26,4 @@ public class PrincipalDetailService implements UserDetailsService {
     return new PrincipalDetails(member.getMemberId(), member.getEmail(),
         member.getRole().toString());
   }
-
 }

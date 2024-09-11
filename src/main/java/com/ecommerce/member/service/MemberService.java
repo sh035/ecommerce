@@ -44,9 +44,12 @@ public class MemberService {
     @Transactional
     public void signUp(MemberSignupDto dto) {
 
-        checkDuplicatedEmail(dto.getEmail());
-        checkDuplicatedMemberId(dto.getMemberId());
-
+        if (memberRepository.existsByEmail(email)) {
+            throw new CustomException(ErrorCode.DUPLICATED_EMAIL);
+        }
+        if (memberRepository.existsByMemberId(memberId)) {
+            throw new CustomException(ErrorCode.DUPLICATED_MEMBER_ID);
+        }
         if (!dto.getEmail().equals(mailRedisService.getData(dto.getAuthNum()))) {
             throw new CustomException(ErrorCode.NOT_MATCH_AUTH);
         }
@@ -134,19 +137,5 @@ public class MemberService {
 
         member.withdrawal(LocalDateTime.now());
         memberRepository.save(member);
-    }
-
-    // 이메일 중복 확인
-    private void checkDuplicatedEmail(String email) {
-        if (memberRepository.existsByEmail(email)) {
-            throw new CustomException(ErrorCode.DUPLICATED_EMAIL);
-        }
-    }
-
-    // 아이디 중복 확인
-    private void checkDuplicatedMemberId(String memberId) {
-        if (memberRepository.existsByMemberId(memberId)) {
-            throw new CustomException(ErrorCode.DUPLICATED_MEMBER_ID);
-        }
     }
 }
