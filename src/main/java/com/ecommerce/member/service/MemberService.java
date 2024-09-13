@@ -44,11 +44,11 @@ public class MemberService {
     @Transactional
     public void signUp(MemberSignupDto dto) {
 
-        if (memberRepository.existsByEmail(email)) {
-            throw new CustomException(ErrorCode.DUPLICATED_EMAIL);
-        }
-        if (memberRepository.existsByMemberId(memberId)) {
+        if (memberRepository.existsByMemberId(dto.getMemberId())) {
             throw new CustomException(ErrorCode.DUPLICATED_MEMBER_ID);
+        }
+        if (memberRepository.existsByEmail(dto.getEmail())) {
+            throw new CustomException(ErrorCode.DUPLICATED_EMAIL);
         }
         if (!dto.getEmail().equals(mailRedisService.getData(dto.getAuthNum()))) {
             throw new CustomException(ErrorCode.NOT_MATCH_AUTH);
