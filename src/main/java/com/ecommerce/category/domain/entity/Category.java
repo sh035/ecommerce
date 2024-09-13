@@ -1,47 +1,46 @@
 package com.ecommerce.category.domain.entity;
 
-import com.ecommerce.category.domain.dto.CategoryUpdateDto;
 import com.ecommerce.global.entity.BaseTime;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@SQLRestriction("deleted_at IS NULL")
 public class Category extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @Column(nullable = false)
+    private String categoryName;
 
+    @Column
     private Long parentId;
 
-    @OneToMany(mappedBy = "parentId")
-    private List<Category> children = new ArrayList<>();
+    @Column
+    private LocalDateTime deletedAt;
 
-    public static Category root() {
-        return new Category();
+    public void update(String categoryName, Long parentId) {
+        this.categoryName = categoryName;
+        this.parentId = parentId;
     }
 
-    public void addChild(Category child) {
-        children.add(child);
-    }
-
-    public void update(CategoryUpdateDto dto) {
-        this.name = dto.getName();
-        this.parentId = dto.getParentId();
+    public void delete(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }

@@ -27,7 +27,7 @@ public class ProductResponse {
 
   public static ProductResponse from(Product product, List<ProductImage> imageUrl) {
     return ProductResponse.builder()
-        .categoryName(product.getCategory().getName())
+        .categoryName(product.getCategory().getCategoryName())
         .name(product.getName())
         .price(product.getPrice())
         .description(product.getDescription())
