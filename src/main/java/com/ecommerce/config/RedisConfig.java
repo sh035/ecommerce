@@ -56,9 +56,9 @@ public class RedisConfig {
   }
 
   @Bean
-  public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+  public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
     RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-        .entryTtl(Duration.ofMinutes(60)) // 캐시 유효 기간 설정
+        .entryTtl(Duration.ofMinutes(30)) // 캐시 유효 기간 설정
         .disableCachingNullValues()
         .serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
