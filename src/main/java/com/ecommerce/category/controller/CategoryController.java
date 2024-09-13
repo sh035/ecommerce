@@ -1,9 +1,13 @@
 package com.ecommerce.category.controller;
 
 import com.ecommerce.category.domain.dto.CategoryDto;
-import com.ecommerce.category.domain.dto.CategoryUpdateDto;
+import com.ecommerce.category.domain.dto.ChildCategoryDto;
+import com.ecommerce.category.domain.dto.ParentCategoryDto;
 import com.ecommerce.category.service.CategoryService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,36 +18,49 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/category")
 public class CategoryController {
 
-  private final CategoryService categoryService;
+    private final CategoryService categoryService;
 
-  @PostMapping("/create")
-  public ResponseEntity<?> create(@RequestBody CategoryDto dto) {
-    return ResponseEntity.ok(categoryService.create(dto));
-  }
+    @PostMapping("/create/parent")
+    public ResponseEntity<ParentCategoryDto> createParentCategory(
+        @RequestBody ParentCategoryDto dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(categoryService.parentCategoryCreate(dto));
+    }
 
-  @PutMapping("/update/{id}")
-  public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody CategoryUpdateDto dto) {
-    return ResponseEntity.ok(categoryService.update(id, dto));
-  }
+    @PostMapping("/create/child")
+    public ResponseEntity<ChildCategoryDto> createChildCategory(@RequestBody ChildCategoryDto dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(categoryService.childCategoryCreate(dto));
+    }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<?> delete(@PathVariable("id") Long id) {
+    @PutMapping("/update/{id}")
+    public ResponseEntity<CategoryDto> update(@PathVariable("id") Long id, @RequestBody CategoryDto dto) {
+        return ResponseEntity.ok(categoryService.update(id, dto));
+    }
 
-    return ResponseEntity.ok(categoryService.delete(id));
-  }
+    @PostMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
+        categoryService.delete(id);
+        return ResponseEntity.status(HttpStatus.OK)
+            .body("카테고리가 삭제되었습니다.");
+    }
 
-  @GetMapping
-  public ResponseEntity<?> getAllCategories() {
-    return ResponseEntity.ok(categoryService.findAll());
-  }
+    @GetMapping
+    public ResponseEntity<List<CategoryDto>> getParentCategories() {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(categoryService.getParentCategories());
+    }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<?> getCategoryById(@PathVariable("id") Long id) {
-    return ResponseEntity.ok(categoryService.findById(id));
-  }
+    @GetMapping("/{parentId}")
+    public ResponseEntity<List<CategoryDto>> getCategoryById(@PathVariable("parentId") Long parentId) {
+        log.info("parentId : {}",parentId);
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(categoryService.getChildCategories(parentId));
+    }
 }
