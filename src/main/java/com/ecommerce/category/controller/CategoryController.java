@@ -9,11 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,12 +38,21 @@ public class CategoryController {
             .body(categoryService.childCategoryCreate(dto));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<CategoryDto> update(@PathVariable("id") Long id, @RequestBody CategoryDto dto) {
-        return ResponseEntity.ok(categoryService.update(id, dto));
+    @PatchMapping("/update/parent/{id}")
+    public ResponseEntity<CategoryDto> updateParentCategory(@PathVariable("id") Long id,
+        @RequestBody ParentCategoryDto dto) {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(categoryService.updateParentCategory(id, dto));
     }
 
-    @PostMapping("/{id}")
+    @PatchMapping("/update/child/{id}")
+    public ResponseEntity<CategoryDto> updateChildCategory(@PathVariable("id") Long id,
+        @RequestBody ChildCategoryDto dto) {
+
+        return ResponseEntity.ok(categoryService.updateChildCategory(id, dto));
+    }
+
+    @PostMapping("/delete/{id}")
     public ResponseEntity<String> delete(@PathVariable("id") Long id) {
         categoryService.delete(id);
         return ResponseEntity.status(HttpStatus.OK)
@@ -59,7 +67,6 @@ public class CategoryController {
 
     @GetMapping("/{parentId}")
     public ResponseEntity<List<CategoryDto>> getCategoryById(@PathVariable("parentId") Long parentId) {
-        log.info("parentId : {}",parentId);
         return ResponseEntity.status(HttpStatus.OK)
             .body(categoryService.getChildCategories(parentId));
     }

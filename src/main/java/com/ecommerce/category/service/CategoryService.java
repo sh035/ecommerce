@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,18 +28,20 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
 
+    @CacheEvict(value = "parentCategories", allEntries = true, cacheManager = "redisCacheManager")
     public ParentCategoryDto parentCategoryCreate(ParentCategoryDto dto) {
         if (categoryRepository.existsByCategoryName(dto.getCategoryName())) {
             throw new DuplicateCategoryException("이미 존재하는 카테고리입니다.");
         }
 
         categoryRepository.save(Category.builder()
-                .categoryName(dto.getCategoryName())
+            .categoryName(dto.getCategoryName())
             .build());
 
         return ParentCategoryDto.from(dto.getCategoryName());
     }
 
+    @CacheEvict(value = "childCategories", key = "#dto.parentId", cacheManager = "redisCacheManager")
     public ChildCategoryDto childCategoryCreate(ChildCategoryDto dto) {
         if (!categoryRepository.existsById(dto.getParentId())) {
             throw new NotExistParentException("부모 카테고리가 존재하지 않습니다.");
@@ -52,20 +55,39 @@ public class CategoryService {
         return ChildCategoryDto.from(category);
     }
 
-    //TODO 업데이트시 redis 값 삭제되는지 확인, 부모 카테고리 업데이트 추가해야됨
-    @CacheEvict(value = "categories", allEntries = true)
-    public CategoryDto update(Long id, CategoryDto dto) {
+    @CacheEvict(value = "parentCategories", allEntries = true, cacheManager = "redisCacheManager")
+    public CategoryDto updateParentCategory(Long id, ParentCategoryDto dto) {
         Category category = categoryRepository.findById(id)
             .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CATEGORY));
 
-        category.update(dto.getCategoryName(), dto.getParentId());
+        category.parentUpdate(dto.getCategoryName());
 
         return CategoryDto.from(categoryRepository.save(category));
     }
 
+    @CacheEvict(value = "childCategories", key = "#dto.parentId", cacheManager = "redisCacheManager")
+    public CategoryDto updateChildCategory(Long id, ChildCategoryDto dto) {
+        Category category = categoryRepository.findById(id)
+            .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CATEGORY));
+
+        category.childUpdate(dto.getCategoryName(), dto.getParentId());
+
+        return CategoryDto.from(categoryRepository.save(category));
+    }
+
+    // TODO 캐시 삭제 (임시방편)
+    @Caching(evict = {
+        @CacheEvict(value = "parentCategories", allEntries = true, cacheManager = "redisCacheManager"),
+        @CacheEvict(value = "childCategories", allEntries = true, cacheManager = "redisCacheManager")
+    })
     public void delete(Long id) {
         Category category = categoryRepository.findById(id)
             .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CATEGORY));
+
+        if (category.getParentId() == null) {
+            categoryRepository.findByParentId(id).stream()
+                .forEach(child -> child.delete(LocalDateTime.now()));
+        }
 
         category.delete(LocalDateTime.now());
         categoryRepository.save(category);
@@ -74,7 +96,8 @@ public class CategoryService {
     @Transactional(readOnly = true)
     @Cacheable(value = "parentCategories", key = "'all'", cacheManager = "redisCacheManager")
     public List<CategoryDto> getParentCategories() {
-        return categoryRepository.findByParentIdIsNull().stream()
+        List<Category> categories = categoryRepository.findByParentIdIsNull();
+        return categories.stream()
             .map(CategoryDto::from)
             .collect(Collectors.toList());
     }
@@ -82,7 +105,6 @@ public class CategoryService {
     @Transactional(readOnly = true)
     @Cacheable(value = "childCategories", key = "#parentId", cacheManager ="redisCacheManager")
     public List<CategoryDto> getChildCategories(Long parentId) {
-        log.info("service parentId: {}", parentId);
         return categoryRepository.findByParentId(parentId).stream()
             .map(CategoryDto::from)
             .collect(Collectors.toList());

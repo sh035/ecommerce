@@ -35,7 +35,11 @@ public class Category extends BaseTime {
     @Column
     private LocalDateTime deletedAt;
 
-    public void update(String categoryName, Long parentId) {
+    public void parentUpdate(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public void childUpdate(String categoryName, Long parentId) {
         this.categoryName = categoryName;
         this.parentId = parentId;
     }
