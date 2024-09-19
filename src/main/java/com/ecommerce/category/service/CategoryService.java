@@ -4,13 +4,12 @@ import com.ecommerce.category.domain.dto.CategoryDto;
 import com.ecommerce.category.domain.dto.ChildCategoryDto;
 import com.ecommerce.category.domain.dto.ParentCategoryDto;
 import com.ecommerce.category.domain.entity.Category;
-import com.ecommerce.category.exception.DuplicateCategoryException;
+import com.ecommerce.category.exception.DuplicatedCategoryException;
 import com.ecommerce.category.exception.NotExistParentException;
 import com.ecommerce.category.repository.CategoryRepository;
-import com.ecommerce.global.exception.CustomException;
-import com.ecommerce.global.exception.ErrorCode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,7 @@ public class CategoryService {
     @CacheEvict(value = "parentCategories", allEntries = true, cacheManager = "redisCacheManager")
     public ParentCategoryDto parentCategoryCreate(ParentCategoryDto dto) {
         if (categoryRepository.existsByCategoryName(dto.getCategoryName())) {
-            throw new DuplicateCategoryException("이미 존재하는 카테고리입니다.");
+            throw new DuplicatedCategoryException();
         }
 
         categoryRepository.save(Category.builder()
@@ -44,7 +43,11 @@ public class CategoryService {
     @CacheEvict(value = "childCategories", key = "#dto.parentId", cacheManager = "redisCacheManager")
     public ChildCategoryDto childCategoryCreate(ChildCategoryDto dto) {
         if (!categoryRepository.existsById(dto.getParentId())) {
-            throw new NotExistParentException("부모 카테고리가 존재하지 않습니다.");
+            throw new NotExistParentException();
+        }
+
+        if (categoryRepository.existsByCategoryName(dto.getCategoryName())) {
+            throw new DuplicatedCategoryException();
         }
 
         Category category = categoryRepository.save(Category.builder()
@@ -58,7 +61,7 @@ public class CategoryService {
     @CacheEvict(value = "parentCategories", allEntries = true, cacheManager = "redisCacheManager")
     public CategoryDto updateParentCategory(Long id, ParentCategoryDto dto) {
         Category category = categoryRepository.findById(id)
-            .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CATEGORY));
+            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다."));
 
         category.parentUpdate(dto.getCategoryName());
 
@@ -68,7 +71,7 @@ public class CategoryService {
     @CacheEvict(value = "childCategories", key = "#dto.parentId", cacheManager = "redisCacheManager")
     public CategoryDto updateChildCategory(Long id, ChildCategoryDto dto) {
         Category category = categoryRepository.findById(id)
-            .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CATEGORY));
+            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다."));
 
         category.childUpdate(dto.getCategoryName(), dto.getParentId());
 
@@ -82,7 +85,7 @@ public class CategoryService {
     })
     public void delete(Long id) {
         Category category = categoryRepository.findById(id)
-            .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CATEGORY));
+            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다."));
 
         if (category.getParentId() == null) {
             categoryRepository.findByParentId(id).stream()
