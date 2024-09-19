@@ -1,8 +1,6 @@
 package com.ecommerce.mail.service;
 
-import com.ecommerce.global.exception.CustomException;
-import com.ecommerce.global.exception.ErrorCode;
-
+import com.ecommerce.mail.exception.AuthDeliveryFailException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.util.Random;
@@ -53,7 +51,7 @@ public class MailService {
 
             mailSender.send(message);
         } catch (MessagingException e) {
-            throw new CustomException(ErrorCode.EMAIL_DELIVERY_FAILED);
+            throw new AuthDeliveryFailException();
         }
 
         mailRedisService.setDataExpire(authNum, to, mailExpiration);

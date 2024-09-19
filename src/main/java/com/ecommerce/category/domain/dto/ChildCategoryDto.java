@@ -11,15 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class CategoryDto {
+public class ChildCategoryDto {
 
-    private Long id;
     private String categoryName;
     private Long parentId;
 
-    public static CategoryDto from(Category category) {
-        return CategoryDto.builder()
-            .id(category.getId())
+    public static ChildCategoryDto from(Category category) {
+        return ChildCategoryDto.builder()
             .categoryName(category.getCategoryName())
             .parentId(category.getParentId())
             .build();

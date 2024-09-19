@@ -1,7 +1,6 @@
 package com.ecommerce.global.security.jwt;
 
-import com.ecommerce.global.exception.CustomException;
-import com.ecommerce.global.exception.ErrorCode;
+import com.ecommerce.global.security.jwt.exception.InvalidTokenException;
 import com.ecommerce.global.security.auth.PrincipalDetailService;
 import com.ecommerce.global.security.auth.PrincipalDetails;
 import io.jsonwebtoken.Claims;
@@ -17,18 +16,14 @@ import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import java.security.Key;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
@@ -151,7 +146,7 @@ public class TokenProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         } catch (JwtException e) {
-            throw new CustomException(ErrorCode.INVALID_TOKEN);
+            throw new InvalidTokenException();
         }
     }
 

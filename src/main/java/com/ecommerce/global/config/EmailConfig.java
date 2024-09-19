@@ -1,4 +1,4 @@
-package com.ecommerce.config;
+package com.ecommerce.global.config;
 
 import java.util.Properties;
 import org.springframework.beans.factory.annotation.Value;

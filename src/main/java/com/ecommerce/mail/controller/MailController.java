@@ -1,7 +1,5 @@
 package com.ecommerce.mail.controller;
 
-import com.ecommerce.global.exception.CustomException;
-import com.ecommerce.global.exception.ErrorCode;
 import com.ecommerce.mail.service.MailService;
 import com.ecommerce.mail.dto.EmailCheckDto;
 import com.ecommerce.mail.dto.EmailRequestDto;

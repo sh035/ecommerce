@@ -1,9 +1,8 @@
 package com.ecommerce.global.security.auth;
 
-import com.ecommerce.global.exception.CustomException;
-import com.ecommerce.global.exception.ErrorCode;
 import com.ecommerce.member.domain.entity.Member;
 import com.ecommerce.member.repository.MemberRepository;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +20,7 @@ public class PrincipalDetailService implements UserDetailsService {
   public UserDetails loadUserByUsername(String memberId) {
 
     Member member = memberRepository.findByMemberId(memberId)
-        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+        .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
     return new PrincipalDetails(member.getMemberId(), member.getEmail(),
         member.getRole().toString());

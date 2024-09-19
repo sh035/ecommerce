@@ -2,113 +2,109 @@ package com.ecommerce.product.service;
 
 import com.ecommerce.category.domain.entity.Category;
 import com.ecommerce.category.repository.CategoryRepository;
-import com.ecommerce.global.exception.CustomException;
-import com.ecommerce.global.exception.ErrorCode;
-import com.ecommerce.image.domain.entity.ProductImage;
-import com.ecommerce.image.repository.ProductImageRepository;
-import com.ecommerce.image.service.S3Service;
+import com.ecommerce.image.domain.entity.Image;
+import com.ecommerce.image.repository.ImageRepository;
+import com.ecommerce.image.service.ImageService;
 import com.ecommerce.product.domain.dto.ProductCreateDto;
-import com.ecommerce.product.domain.dto.ProductResponse;
+import com.ecommerce.product.domain.dto.ProductDetailDto;
+import com.ecommerce.product.domain.dto.ProductResponseDto;
 import com.ecommerce.product.domain.dto.ProductUpdateDto;
 import com.ecommerce.product.domain.entity.Product;
 import com.ecommerce.product.domain.enums.ProductStatus;
 import com.ecommerce.product.repository.ProductRepository;
-import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductService {
 
-  private final ProductRepository productRepository;
-  private final CategoryRepository categoryRepository;
-  private final ProductImageRepository productImageRepository;
-  private final S3Service s3Service;
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final ImageService imageService;
+    private final ImageRepository imageRepository;
 
-  @Transactional
-  public ProductResponse createProduct(ProductCreateDto dto, List<MultipartFile> images) {
-    Category category = categoryRepository.findById(dto.getCategoryId())
-        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CATEGORY));
+    @Transactional
+    public ProductResponseDto createProduct(ProductCreateDto dto, List<MultipartFile> files) {
+        Category parentCategory = categoryRepository.findById(dto.getParentCategoryId())
+            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다."));
 
-    Product product = productRepository.save(Product.builder()
-        .category(category)
-        .name(dto.getName())
-        .price(dto.getPrice())
-        .description(dto.getDescription())
-        .deliveryCharge(dto.getDeliveryCharge())
-        .qty(dto.getQty())
-        .productStatus(ProductStatus.SELL)
-        .build());
+        Category childCategory = categoryRepository.findById(dto.getChildCategoryId())
+            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다."));
 
-    List<ProductImage> productImages = s3Service.upload(images).stream()
-        .map(imageUrl -> ProductImage.builder()
-            .product(product)
-            .imageUrl(imageUrl)
-            .uploadDate(LocalDateTime.now())
-            .build())
-        .collect(Collectors.toList());
+        Product product = Product.builder()
+            .parentCategory(parentCategory)
+            .childCategory(childCategory)
+            .name(dto.getName())
+            .price(dto.getPrice())
+            .description(dto.getDescription())
+            .deliveryCharge(dto.getDeliveryCharge())
+            .qty(dto.getQty())
+            .productStatus(ProductStatus.SELL)
+            .build();
 
-    productImageRepository.saveAll(productImages);
-
-    return ProductResponse.from(product, productImages);
-  }
-
-  @Transactional
-  public ProductResponse updateProduct(Long id, ProductUpdateDto dto, List<MultipartFile> images) {
-    Product product = getProduct(id);
-    Category category = categoryRepository.findById(dto.getCategoryId())
-        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_CATEGORY));
-
-    product.update(dto, category);
-
-    List<ProductImage> productImages = null;
-    if (images != null && !images.isEmpty()) {
-      productImageRepository.deleteByProductId(product.getId());
-
-      productImages = s3Service.upload(images).stream()
-          .map(imageUrl -> ProductImage.builder()
-              .product(product)
-              .imageUrl(imageUrl)
-              .uploadDate(LocalDateTime.now())
-              .build())
-          .collect(Collectors.toList());
-
-      productImageRepository.saveAll(productImages);
-    } else {
-    productImages = productImageRepository.findByProductId(product.getId())
-        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT));
+        List<Image> images = imageService.getImages(files);
+        addImages(images, product);
+        log.info("create imageName: {}",images.get(0).getImageName());
+        return ProductResponseDto.from(productRepository.save(product));
     }
-    return ProductResponse.from(productRepository.save(product), productImages);
 
-  }
+    @Transactional
+    public ProductResponseDto update(Long id, ProductUpdateDto dto,
+        List<MultipartFile> files) {
+        Product product = getProduct(id);
+        Category parentCategory = categoryRepository.findById(dto.getParentCategoryId())
+            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다."));
 
-  public ProductResponse detail(Long id) {
-    Product product = getProduct(id);
+        Category childCategory = categoryRepository.findById(dto.getChildCategoryId())
+            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다."));
 
-    List<ProductImage> productImages = productImageRepository.findByProductId(id)
-        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT));
+        product.update(dto, parentCategory, childCategory);
 
-    return ProductResponse.from(product, productImages);
-  }
+        if (dto.getImages() != null && !dto.getImages().isEmpty()) {
+            dto.getImages().forEach(imageService::deleteFile);
+        }
 
-  @Transactional
-  public ProductResponse delete(Long id) {
-    Product product = getProduct(id);
-    List<ProductImage> productImages = productImageRepository.findByProductId(id)
-        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT));
-    productRepository.delete(product);
+        List<Image> images = imageService.getImages(files);
+        addImages(images, product);
 
-    return ProductResponse.from(product, productImages);
-  }
+        return ProductResponseDto.from(productRepository.save(product));
+    }
 
-  private Product getProduct(Long id) {
-    Product product = productRepository.findById(id)
-        .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT));
-    return product;
-  }
+    @Transactional(readOnly = true)
+    public ProductDetailDto detail(Long id) {
+        Product product = getProduct(id);
+
+        return ProductDetailDto.from(product);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        Product product = getProduct(id);
+
+        product.delete(LocalDateTime.now());
+        product.getImages().forEach(image -> imageService.deleteFile(image.getImageName()));
+        productRepository.save(product);
+    }
+
+    private Product getProduct(Long id) {
+        Product product = productRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다."));
+        return product;
+    }
+
+    private void addImages(List<Image> images, Product product) {
+        images.stream()
+            .map(image -> image.toBuilder()
+                .product(product)
+                .build())
+            .forEach(product::addImages);
+    }
 }

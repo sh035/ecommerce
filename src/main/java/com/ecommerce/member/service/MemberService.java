@@ -1,10 +1,9 @@
 package com.ecommerce.member.service;
 
 import com.ecommerce.global.security.jwt.JwtRedisService;
-import com.ecommerce.global.exception.CustomException;
-import com.ecommerce.global.exception.ErrorCode;
 import com.ecommerce.global.security.jwt.JwtTokenDto;
 import com.ecommerce.global.security.jwt.TokenProvider;
+import com.ecommerce.mail.exception.AuthMatchFailException;
 import com.ecommerce.mail.service.MailRedisService;
 import com.ecommerce.member.domain.dto.MemberOAuthUpdateDto;
 import com.ecommerce.member.domain.dto.MemberSignInRequestDto;
@@ -14,9 +13,13 @@ import com.ecommerce.member.domain.dto.MemberWithdrawalDto;
 import com.ecommerce.member.domain.entity.Member;
 import com.ecommerce.member.domain.enums.Role;
 import com.ecommerce.member.domain.dto.MemberUpdateDto;
+import com.ecommerce.member.exception.DuplicatedEmailException;
+import com.ecommerce.member.exception.DuplicatedMemberIdException;
+import com.ecommerce.member.exception.DuplicatedPasswordException;
+import com.ecommerce.member.exception.DuplicatedPhoneException;
+import com.ecommerce.member.exception.PasswordMatchFailException;
 import com.ecommerce.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -44,14 +47,14 @@ public class MemberService {
     @Transactional
     public void signUp(MemberSignupDto dto) {
 
-        if (memberRepository.existsByEmail(email)) {
-            throw new CustomException(ErrorCode.DUPLICATED_EMAIL);
+        if (memberRepository.existsByMemberId(dto.getMemberId())) {
+            throw new DuplicatedMemberIdException();
         }
-        if (memberRepository.existsByMemberId(memberId)) {
-            throw new CustomException(ErrorCode.DUPLICATED_MEMBER_ID);
+        if (memberRepository.existsByEmail(dto.getEmail())) {
+            throw new DuplicatedEmailException();
         }
         if (!dto.getEmail().equals(mailRedisService.getData(dto.getAuthNum()))) {
-            throw new CustomException(ErrorCode.NOT_MATCH_AUTH);
+            throw new AuthMatchFailException();
         }
 
         memberRepository.save(Member.builder()
@@ -69,10 +72,10 @@ public class MemberService {
     public MemberSignInResponseDto signIn(MemberSignInRequestDto dto) {
 
         Member member = memberRepository.findByMemberId(dto.getMemberId())
-            .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
-            throw new CustomException(ErrorCode.NOT_MATCH_PASSWORD);
+            throw new PasswordMatchFailException();
         }
 
         List<GrantedAuthority> authorities = Collections.singletonList(
@@ -106,11 +109,11 @@ public class MemberService {
             .orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
 
         if (passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
-            throw new CustomException(ErrorCode.DUPLICATED_PASSWORD);
+            throw new DuplicatedPasswordException();
         }
 
         if (dto.getPhone().equals(member.getPhone())) {
-            throw new CustomException(ErrorCode.DUPLICATED_PHONE);
+            throw new DuplicatedPhoneException();
         }
 
         member.update(passwordEncoder.encode(dto.getPassword()), dto.getPhone());
@@ -132,7 +135,7 @@ public class MemberService {
             .orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
 
         if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
-            throw new CustomException(ErrorCode.NOT_MATCH_PASSWORD);
+            throw new PasswordMatchFailException();
         }
 
         member.withdrawal(LocalDateTime.now());
