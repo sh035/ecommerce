@@ -1,6 +1,5 @@
 package com.ecommerce.member.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -11,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ecommerce.annotation.CustomMockMember;
-import com.ecommerce.config.SecurityConfig;
+import com.ecommerce.global.config.SecurityConfig;
 import com.ecommerce.global.security.auth.PrincipalOauth2UserService;
 import com.ecommerce.global.security.jwt.JwtRedisService;
 import com.ecommerce.global.security.jwt.Oauth2FailureHandler;
