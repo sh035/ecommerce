@@ -1,8 +1,10 @@
 package com.ecommerce.product.domain.dto;
 
+import com.ecommerce.product.domain.enums.ProductStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +13,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class ProductCreateDto {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ProductUpdateDto {
 
     @NotBlank(message = "상품 이름을 입력해주세요.")
     @Size(max = 100, message = "상품 이름은 100자까지 입력할 수 있습니다.")
@@ -40,4 +42,10 @@ public class ProductCreateDto {
     @NotBlank(message = "수량을 입력해주세요.")
     @Size(min = 1, message = "1개 이상 입력해주세요.")
     private int qty;
+
+    private ProductStatus productStatus;
+
+    private List<String> images;
+
+
 }
