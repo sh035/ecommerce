@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ProductDetailDto {
 
-    private String name;
+    private String title;
     private int price;
     private String description;
     private String parentCategory;
@@ -32,7 +32,7 @@ public class ProductDetailDto {
 
     public static ProductDetailDto from(Product product) {
         return ProductDetailDto.builder()
-            .name(product.getName())
+            .title(product.getTitle())
             .price(product.getPrice())
             .description(product.getDescription())
             .parentCategory(product.getParentCategory().getCategoryName())
