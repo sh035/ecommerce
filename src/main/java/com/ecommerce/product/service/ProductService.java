@@ -3,11 +3,11 @@ package com.ecommerce.product.service;
 import com.ecommerce.category.domain.entity.Category;
 import com.ecommerce.category.repository.CategoryRepository;
 import com.ecommerce.image.domain.entity.Image;
-import com.ecommerce.image.repository.ImageRepository;
 import com.ecommerce.image.service.ImageService;
 import com.ecommerce.product.domain.dto.ProductCreateDto;
 import com.ecommerce.product.domain.dto.ProductDetailDto;
-import com.ecommerce.product.domain.dto.ProductResponseDto;
+import com.ecommerce.product.domain.dto.ProductListResDto;
+import com.ecommerce.product.domain.dto.ProductResDto;
 import com.ecommerce.product.domain.dto.ProductUpdateDto;
 import com.ecommerce.product.domain.entity.Product;
 import com.ecommerce.product.domain.enums.ProductStatus;
@@ -16,12 +16,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -29,10 +29,20 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ImageService imageService;
-    private final ImageRepository imageRepository;
+
+
+    @Transactional(readOnly = true)
+    public Slice<ProductListResDto> getProducts(String title, String parentCategory, String childCategory
+        ,  String sorted, Pageable pageable) {
+
+        Slice<Product> products = productRepository.searchKeyword(title, parentCategory, childCategory,
+             sorted, pageable);
+
+        return products.map(ProductListResDto::from);
+    }
 
     @Transactional
-    public ProductResponseDto createProduct(ProductCreateDto dto, List<MultipartFile> files) {
+    public ProductResDto createProduct(ProductCreateDto dto, List<MultipartFile> files) {
         Category parentCategory = categoryRepository.findById(dto.getParentCategoryId())
             .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다."));
 
@@ -42,7 +52,7 @@ public class ProductService {
         Product product = Product.builder()
             .parentCategory(parentCategory)
             .childCategory(childCategory)
-            .name(dto.getName())
+            .title(dto.getTitle())
             .price(dto.getPrice())
             .description(dto.getDescription())
             .deliveryCharge(dto.getDeliveryCharge())
@@ -52,12 +62,11 @@ public class ProductService {
 
         List<Image> images = imageService.getImages(files);
         addImages(images, product);
-        log.info("create imageName: {}",images.get(0).getImageName());
-        return ProductResponseDto.from(productRepository.save(product));
+        return ProductResDto.from(productRepository.save(product));
     }
 
     @Transactional
-    public ProductResponseDto update(Long id, ProductUpdateDto dto,
+    public ProductResDto update(Long id, ProductUpdateDto dto,
         List<MultipartFile> files) {
         Product product = getProduct(id);
         Category parentCategory = categoryRepository.findById(dto.getParentCategoryId())
@@ -75,7 +84,7 @@ public class ProductService {
         List<Image> images = imageService.getImages(files);
         addImages(images, product);
 
-        return ProductResponseDto.from(productRepository.save(product));
+        return ProductResDto.from(productRepository.save(product));
     }
 
     @Transactional(readOnly = true)
