@@ -35,10 +35,12 @@ public class ProductController {
       @RequestParam(required = false) String title,
       @RequestParam(required = false) String parentCategory,
       @RequestParam(required = false) String childCategory,
-      @RequestParam(required = false) String sorted,
+      @RequestParam(required = false, defaultValue = "NEW") String sort,
+      @RequestParam(required = false, defaultValue = "DESC") String sortOrder,
       @PageableDefault Pageable pageable) {
 
-    return ResponseEntity.ok(productService.getProducts(title, parentCategory, childCategory, sorted, pageable));
+    return ResponseEntity.ok(
+        productService.getProducts(title, parentCategory, childCategory, sort, sortOrder, pageable));
   }
 
   @PostMapping("/create")

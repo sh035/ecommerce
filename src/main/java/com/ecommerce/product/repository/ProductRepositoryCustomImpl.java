@@ -22,8 +22,8 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Product> searchKeyword( String title, String parentCategory, String childCategory,
-        String sorted, Pageable pageable) {
+    public Slice<Product> searchKeyword(String title, String parentCategory, String childCategory,
+        String sort, String sortOrder, Pageable pageable) {
 
         List<Product> products = queryFactory
             .selectFrom(product)
@@ -34,7 +34,7 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
                 product.deletedAt.isNull(),
                 product.productStatus.eq(ProductStatus.SELL)
             )
-            .orderBy(orderBySpecifier(sorted))
+            .orderBy(orderBySpecifier(sort, sortOrder))
             .limit(pageable.getPageSize() + 1)
             .offset(pageable.getOffset())
             .fetch();
@@ -42,7 +42,7 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
         return new SliceImpl<>(products, pageable, hasNextPage(products, pageable.getPageSize()));
     }
 
-    // TODO: 수정 해야됨
+    // TODO: title 말고 description 에 값으로 수정 해야됨
     private BooleanExpression containsTitle(String title) {
         return StringUtils.hasText(title) ? product.title.containsIgnoreCase(title) : null;
     }
@@ -57,13 +57,14 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
             childCategory) : null;
     }
 
-    // TODO: 수정해야됨
-    private OrderSpecifier<?> orderBySpecifier(String sorted) {
-        sorted = StringUtils.hasText(sorted) ? sorted : "";
+    private OrderSpecifier<?> orderBySpecifier(String sort, String sortOrder) {
+        sort = StringUtils.hasText(sort) ? sort : "";
 
-        return switch (sorted) {
-            case "lowPrice" -> product.price.asc();
-            case "highPrice" -> product.price.desc();
+        return switch (sort) {
+            case "PRICE" -> sortOrder.equalsIgnoreCase("DESC") ? product.price.desc()
+                : product.price.asc();
+            case "NEW" -> sortOrder.equalsIgnoreCase("DESC") ? product.createdAt.desc()
+                : product.createdAt.asc();
             default -> product.createdAt.desc();
         };
     }

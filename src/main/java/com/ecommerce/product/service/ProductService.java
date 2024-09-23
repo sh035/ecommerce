@@ -33,10 +33,10 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Slice<ProductListResDto> getProducts(String title, String parentCategory, String childCategory
-        ,  String sorted, Pageable pageable) {
+        ,  String sort, String sortOrder, Pageable pageable) {
 
         Slice<Product> products = productRepository.searchKeyword(title, parentCategory, childCategory,
-             sorted, pageable);
+             sort, sortOrder, pageable);
 
         return products.map(ProductListResDto::from);
     }
