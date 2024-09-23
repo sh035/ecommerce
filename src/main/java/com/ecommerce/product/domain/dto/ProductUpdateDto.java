@@ -21,7 +21,7 @@ public class ProductUpdateDto {
 
     @NotBlank(message = "상품 이름을 입력해주세요.")
     @Size(max = 100, message = "상품 이름은 100자까지 입력할 수 있습니다.")
-    private String name;
+    private String title;
 
     @PositiveOrZero(message = "올바른 값을 입력해주세요.")
     private int price;

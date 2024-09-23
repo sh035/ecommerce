@@ -1,10 +1,6 @@
 package com.ecommerce.product.domain.dto;
 
-import com.ecommerce.image.domain.entity.Image;
 import com.ecommerce.product.domain.entity.Product;
-import com.ecommerce.product.domain.enums.ProductStatus;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,19 +11,19 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProductResponseDto {
+public class ProductResDto {
 
     private Long id;
     private String parentCategoryName;
     private String childCategoryName;
-    private String name;
+    private String title;
 
-    public static ProductResponseDto from(Product product) {
-        return ProductResponseDto.builder()
+    public static ProductResDto from(Product product) {
+        return ProductResDto.builder()
             .id(product.getId())
             .parentCategoryName(product.getParentCategory().getCategoryName())
             .childCategoryName(product.getChildCategory().getCategoryName())
-            .name(product.getName())
+            .title(product.getTitle())
             .build();
     }
 }

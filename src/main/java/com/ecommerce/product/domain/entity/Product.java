@@ -48,7 +48,7 @@ public class Product extends BaseTime {
     private Category childCategory;
 
     @Column
-    private String name;
+    private String title;
 
     @Column
     private int price;
@@ -73,7 +73,7 @@ public class Product extends BaseTime {
     private List<Image> images;
 
     public void update(ProductUpdateDto dto, Category parentCategory, Category childCategory) {
-        this.name = dto.getName();
+        this.title = dto.getTitle();
         this.price = dto.getPrice();
         this.description = dto.getDescription();
         this.parentCategory = parentCategory;

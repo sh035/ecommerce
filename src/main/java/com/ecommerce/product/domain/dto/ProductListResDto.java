@@ -1,6 +1,6 @@
 package com.ecommerce.product.domain.dto;
 
-import com.ecommerce.image.domain.entity.Image;
+import com.ecommerce.image.domain.dto.ImageDto;
 import com.ecommerce.product.domain.entity.Product;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
@@ -13,34 +13,31 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-public class ProductDetailDto {
+public class ProductListResDto {
 
+    private Long id;
     private String title;
     private int price;
-    private String description;
-    private String parentCategory;
-    private String ChildCategory;
     private int deliveryCharge;
-    private int qty;
-    private List<String> images;
+    private List<ImageDto> images;
 
     @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/seoul")
     private LocalDateTime createdAt;
 
-    public static ProductDetailDto from(Product product) {
-        return ProductDetailDto.builder()
+    public static ProductListResDto from(Product product) {
+
+        return ProductListResDto.builder()
+            .id(product.getId())
             .title(product.getTitle())
             .price(product.getPrice())
-            .description(product.getDescription())
-            .parentCategory(product.getParentCategory().getCategoryName())
-            .ChildCategory(product.getChildCategory().getCategoryName())
             .deliveryCharge(product.getDeliveryCharge())
-            .qty(product.getQty())
-            .images(product.getImages().stream().map(Image::getImageUrl).toList())
+            .images(product.getImages().stream().map(ImageDto::from).toList())
             .createdAt(product.getCreatedAt())
             .build();
     }
+
+
 }
