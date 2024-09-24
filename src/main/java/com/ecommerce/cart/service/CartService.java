@@ -7,6 +7,7 @@ import com.ecommerce.cart.domain.dto.CartItemUpdateDto;
 import com.ecommerce.cart.domain.dto.CartItemsDeleteDto;
 import com.ecommerce.cart.domain.entity.Cart;
 import com.ecommerce.cart.domain.entity.CartItem;
+import com.ecommerce.product.exception.InsufficientQtyException;
 import com.ecommerce.cart.repository.CartItemRepository;
 import com.ecommerce.cart.repository.CartRepository;
 import com.ecommerce.member.domain.entity.Member;
@@ -38,7 +39,7 @@ public class CartService {
         Cart cart = cartRepository.findByMemberEmail(member.getEmail())
             .orElseGet(() -> Cart.builder()
                 .member(member)
-                .cartItems(new ArrayList<>()) // 빈 카트 아이템 리스트 초기화
+                .cartItems(new ArrayList<>())
                 .build());
 
         return cart.getCartItems().stream()
@@ -54,6 +55,10 @@ public class CartService {
 
         Product product = productRepository.findById(dto.getProductId())
             .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다."));
+
+        if (dto.getQty() > product.getQty()) {
+            throw new InsufficientQtyException();
+        }
 
         Cart cart = cartRepository.findByMemberEmail(member.getEmail())
             .orElseGet(() -> Cart.builder()
@@ -79,6 +84,10 @@ public class CartService {
 
         CartItem cartItem = cartItemRepository.findByIdAndCartId(dto.getId(), cart.getId())
             .orElseThrow(() -> new NoSuchElementException("장바구니에 해당 상품이 존재하지 않습니다."));
+
+        if (dto.getQty() > cartItem.getProduct().getQty()) {
+            throw new InsufficientQtyException();
+        }
 
         cartItem.update(cartItem.getProduct().getPrice() * dto.getQty() , dto.getQty());
 
