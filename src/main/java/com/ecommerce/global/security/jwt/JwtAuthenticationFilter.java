@@ -53,6 +53,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         JwtTokenDto token = tokenProvider.generateToken(memberId, authentication.getAuthorities());
 
+        jwtRedisService.deleteRefreshTokenByAccessToken(oldAccessToken);
+        jwtRedisService.save(token, refreshTokenExpiration);
+
         setAuthentication(token.getAccessToken());
         response.setHeader("access-token", token.getAccessToken());
     }
