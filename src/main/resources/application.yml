@@ -13,7 +13,9 @@ spring:
     hibernate:
       ddl-auto: update
     properties:
-      hibernate.dialect: org.hibernate.dialect.MySQLDialect
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        default_batch_fetch_size: 100
 
   email:
     host: ${EMAIL_HOST}
