@@ -1,5 +1,6 @@
 package com.ecommerce.global.exception;
 
+import com.ecommerce.product.exception.InsufficientQtyException;
 import com.ecommerce.category.exception.DuplicatedCategoryException;
 import com.ecommerce.category.exception.NotExistParentException;
 import com.ecommerce.image.exception.DeleteImageFailException;
@@ -131,6 +132,14 @@ public class GlobalExceptionHandler {
         log.error("MemberException", e);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(e.getMessage());
+    }
+
+    @ExceptionHandler(InsufficientQtyException.class)
+    public ResponseEntity<String> handleInsufficientQtyException(InsufficientQtyException e) {
+        log.error("ProductException", e);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(e.getMessage());
     }
 }
