@@ -4,6 +4,7 @@ import com.ecommerce.cart.domain.dto.CartItemAddDto;
 import com.ecommerce.cart.domain.dto.CartItemDeleteDto;
 import com.ecommerce.cart.domain.dto.CartItemDetailDto;
 import com.ecommerce.cart.domain.dto.CartItemUpdateDto;
+import com.ecommerce.cart.domain.dto.CartItemsDeleteDto;
 import com.ecommerce.cart.service.CartService;
 import com.ecommerce.global.security.auth.PrincipalDetails;
 import java.util.List;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,6 +56,15 @@ public class CartController {
     public ResponseEntity<Void> deleteCartItem(@AuthenticationPrincipal PrincipalDetails principalDetails,
         @RequestBody CartItemDeleteDto dto) {
         cartService.deleteCartItem(principalDetails.getUsername(), dto);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/delete/selected")
+    public ResponseEntity<Void> deleteSelectedCartItems(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
+        @RequestBody CartItemsDeleteDto dto) {
+
+        cartService.deleteSelectedCartItems(principalDetails.getUsername(), dto);
         return ResponseEntity.ok().build();
     }
 }

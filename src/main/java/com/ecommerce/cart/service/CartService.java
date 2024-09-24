@@ -4,6 +4,7 @@ import com.ecommerce.cart.domain.dto.CartItemAddDto;
 import com.ecommerce.cart.domain.dto.CartItemDeleteDto;
 import com.ecommerce.cart.domain.dto.CartItemDetailDto;
 import com.ecommerce.cart.domain.dto.CartItemUpdateDto;
+import com.ecommerce.cart.domain.dto.CartItemsDeleteDto;
 import com.ecommerce.cart.domain.entity.Cart;
 import com.ecommerce.cart.domain.entity.CartItem;
 import com.ecommerce.cart.repository.CartItemRepository;
@@ -96,7 +97,17 @@ public class CartService {
         cartItemRepository.save(cartItem);
     }
 
-    // TODO: 장바구니에 선택된 상품들 삭제 구현해야함
+    public void deleteSelectedCartItems(String email, CartItemsDeleteDto dto) {
+        Cart cart = cartRepository.findByMemberEmail(email)
+            .orElseThrow(() -> new NoSuchElementException("장바구니가 존재하지 않습니다."));
+
+        List<CartItem> cartItems = cartItemRepository.findAllByIdInAndCartId(dto.getIds(), cart.getId())
+            .orElseThrow(() -> new NoSuchElementException("장바구니에 해당 상품이 존재하지 않습니다."));
+
+        cartItems.forEach(CartItem::delete);
+
+        cartItemRepository.saveAll(cartItems);
+    }
 
     // TODO: 장바구니에 담긴 목록 구매 구현해야함
 }
