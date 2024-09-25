@@ -1,5 +1,7 @@
 package com.ecommerce.global.exception;
 
+import com.ecommerce.order.exception.NotEnoughPointException;
+import com.ecommerce.order.exception.OutOfQtyException;
 import com.ecommerce.product.exception.InsufficientQtyException;
 import com.ecommerce.category.exception.DuplicatedCategoryException;
 import com.ecommerce.category.exception.NotExistParentException;
@@ -138,6 +140,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InsufficientQtyException.class)
     public ResponseEntity<String> handleInsufficientQtyException(InsufficientQtyException e) {
         log.error("ProductException", e);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(e.getMessage());
+    }
+
+    @ExceptionHandler(NotEnoughPointException.class)
+    public ResponseEntity<String> handleNotEnoughPointException(NotEnoughPointException e) {
+        log.error("OrderException", e);
+
+        return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED)
+            .body(e.getMessage());
+    }
+
+    @ExceptionHandler(OutOfQtyException.class)
+    public ResponseEntity<String> handleOutOfQtyException(OutOfQtyException e) {
+        log.error("OrderException", e);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(e.getMessage());

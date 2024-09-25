@@ -2,13 +2,11 @@ package com.ecommerce.member.domain.entity;
 
 import com.ecommerce.member.domain.enums.Role;
 import com.ecommerce.global.entity.BaseTime;
-import com.ecommerce.member.domain.dto.MemberUpdateDto;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import org.hibernate.annotations.SQLRestriction;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Getter
@@ -64,5 +62,9 @@ public class Member extends BaseTime {
     public void update(String password, String phone) {
         this.password = password;
         this.phone = phone;
+    }
+
+    public void charge(int point) {
+        this.point -= point;
     }
 }

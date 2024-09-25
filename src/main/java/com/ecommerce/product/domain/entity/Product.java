@@ -91,4 +91,8 @@ public class Product extends BaseTime {
     public void delete(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
+
+    public void removeQty(int qty) {
+        this.qty -= qty;
+    }
 }
