@@ -3,6 +3,7 @@ package com.ecommerce.order.service;
 import com.ecommerce.member.domain.entity.Member;
 import com.ecommerce.member.repository.MemberRepository;
 import com.ecommerce.order.domain.dto.OrderDto;
+import com.ecommerce.order.domain.dto.OrderItemCancelDto;
 import com.ecommerce.order.domain.dto.OrderItemDto;
 import com.ecommerce.order.domain.dto.OrderListResDto;
 import com.ecommerce.order.domain.entity.Order;
@@ -10,6 +11,7 @@ import com.ecommerce.order.domain.entity.OrderItem;
 import com.ecommerce.order.domain.enums.OrderStatus;
 import com.ecommerce.order.exception.NotEnoughPointException;
 import com.ecommerce.order.exception.OutOfQtyException;
+import com.ecommerce.order.repository.OrderItemRepository;
 import com.ecommerce.order.repository.OrderRepository;
 import com.ecommerce.product.domain.entity.Product;
 import com.ecommerce.product.repository.ProductRepository;
@@ -30,6 +32,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
+    private final OrderItemRepository orderItemRepository;
 
     @Transactional(readOnly = true)
     public Page<OrderListResDto> getOrders(String email, Pageable pageable) {
@@ -90,5 +93,14 @@ public class OrderService {
         orderRepository.save(order);
     }
 
+    public void cancel(String email, OrderItemCancelDto dto) {
+
+        OrderItem orderItem = orderItemRepository.findByIdAndEmail(dto.getOrderItemId(), email)
+            .orElseThrow(() -> new NoSuchElementException("주문상품이 존재하지 않습니다."));
+
+        orderItem.cancel();
+
+        orderItemRepository.save(orderItem);
+    }
 
 }
