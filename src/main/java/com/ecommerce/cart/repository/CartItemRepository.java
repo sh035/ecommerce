@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
     Optional<CartItem> findByIdAndCartId(Long id, Long cartId);
-    Optional<List<CartItem>> findAllByIdInAndCartId(List<Long> ids, Long cartId);
+    List<CartItem> findAllByIdInAndCartId(List<Long> ids, Long cartId);
 }

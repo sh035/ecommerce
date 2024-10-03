@@ -6,6 +6,7 @@ import com.ecommerce.order.domain.dto.OrderDto;
 import com.ecommerce.order.domain.dto.OrderItemCancelDto;
 import com.ecommerce.order.domain.dto.OrderListResDto;
 import com.ecommerce.order.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +38,7 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<String> createOrder(@AuthenticationPrincipal PrincipalDetails principalDetails,
-        @RequestBody OrderDto dto) {
+        @RequestBody @Valid OrderDto dto) {
 
         orderService.order(principalDetails.getUsername(), dto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -47,7 +48,7 @@ public class OrderController {
     @PostMapping("/cart")
     public ResponseEntity<String> createOrderCartItems(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
-        @RequestBody OrderCartItemDto dto) {
+        @RequestBody @Valid OrderCartItemDto dto) {
 
         orderService.cartOrders(principalDetails.getUsername(), dto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -56,7 +57,7 @@ public class OrderController {
 
     @DeleteMapping("/cancel")
     public ResponseEntity<Void> cancel(@AuthenticationPrincipal PrincipalDetails principalDetails,
-        @RequestBody OrderItemCancelDto dto) {
+        @RequestBody @Valid OrderItemCancelDto dto) {
 
         orderService.cancel(principalDetails.getUsername(), dto);
         return ResponseEntity.ok().build();
