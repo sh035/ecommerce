@@ -3,6 +3,7 @@ package com.ecommerce.product.domain.entity;
 import com.ecommerce.category.domain.entity.Category;
 import com.ecommerce.global.entity.BaseTime;
 import com.ecommerce.image.domain.entity.Image;
+import com.ecommerce.order.exception.OutOfQtyException;
 import com.ecommerce.product.domain.dto.ProductUpdateDto;
 import com.ecommerce.product.domain.enums.ProductStatus;
 import jakarta.persistence.CascadeType;
@@ -88,11 +89,20 @@ public class Product extends BaseTime {
         images.add(image);
     }
 
-    public void delete(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
     }
 
     public void removeQty(int qty) {
-        this.qty -= qty;
+        int restQty = this.qty - qty;
+
+        if (restQty < 0) {
+            throw new OutOfQtyException();
+        }
+        this.qty = restQty;
+    }
+
+    public void addQty(int qty) {
+        this.qty += qty;
     }
 }

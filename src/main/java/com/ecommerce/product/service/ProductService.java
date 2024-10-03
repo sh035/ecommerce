@@ -12,7 +12,6 @@ import com.ecommerce.product.domain.dto.ProductUpdateDto;
 import com.ecommerce.product.domain.entity.Product;
 import com.ecommerce.product.domain.enums.ProductStatus;
 import com.ecommerce.product.repository.ProductRepository;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
@@ -98,7 +97,7 @@ public class ProductService {
     public void delete(Long id) {
         Product product = getProduct(id);
 
-        product.delete(LocalDateTime.now());
+        product.delete();
         product.getImages().forEach(image -> imageService.deleteFile(image.getImageName()));
         productRepository.save(product);
     }
