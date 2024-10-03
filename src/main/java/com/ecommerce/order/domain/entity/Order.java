@@ -2,12 +2,8 @@ package com.ecommerce.order.domain.entity;
 
 import com.ecommerce.global.entity.BaseTime;
 import com.ecommerce.member.domain.entity.Member;
-import com.ecommerce.order.domain.enums.OrderStatus;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -44,9 +40,8 @@ public class Order extends BaseTime {
     private List<OrderItem> orderItems;
 
     public void addOrderItem(OrderItem orderItem) {
+        orderItem.setOrder(this);
         orderItems = orderItems == null ? new ArrayList<>() : orderItems;
         orderItems.add(orderItem);
-        orderItem.getProduct().removeQty(orderItem.getQty());
-        orderItem.setOrder(this);
     }
 }

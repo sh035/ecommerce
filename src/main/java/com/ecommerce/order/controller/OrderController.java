@@ -1,6 +1,7 @@
 package com.ecommerce.order.controller;
 
 import com.ecommerce.global.security.auth.PrincipalDetails;
+import com.ecommerce.order.domain.dto.OrderCartItemDto;
 import com.ecommerce.order.domain.dto.OrderDto;
 import com.ecommerce.order.domain.dto.OrderItemCancelDto;
 import com.ecommerce.order.domain.dto.OrderListResDto;
@@ -39,6 +40,16 @@ public class OrderController {
         @RequestBody OrderDto dto) {
 
         orderService.order(principalDetails.getUsername(), dto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body("구매가 완료되었습니다.");
+    }
+
+    @PostMapping("/cart")
+    public ResponseEntity<String> createOrderCartItems(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
+        @RequestBody OrderCartItemDto dto) {
+
+        orderService.cartOrders(principalDetails.getUsername(), dto);
         return ResponseEntity.status(HttpStatus.CREATED)
             .body("구매가 완료되었습니다.");
     }

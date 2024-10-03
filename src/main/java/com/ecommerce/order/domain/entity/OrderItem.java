@@ -48,11 +48,23 @@ public class OrderItem extends BaseTime {
     @Column(nullable = false)
     private OrderStatus status;
 
+    public static OrderItem createOrderItem(Product product, int qty) {
+        product.removeQty(qty);
+
+        return OrderItem.builder()
+            .product(product)
+            .price(product.getPrice())
+            .qty(qty)
+            .status(OrderStatus.ORDER)
+            .build();
+    }
+
     public void setOrder(Order order) {
         this.order = order;
     }
 
     public void cancel() {
         this.status = OrderStatus.CANCEL;
+        this.getProduct().addQty(qty);
     }
 }

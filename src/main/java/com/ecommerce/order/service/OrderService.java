@@ -1,16 +1,17 @@
 package com.ecommerce.order.service;
 
+import com.ecommerce.cart.domain.entity.CartItem;
+import com.ecommerce.cart.repository.CartItemRepository;
 import com.ecommerce.member.domain.entity.Member;
 import com.ecommerce.member.repository.MemberRepository;
+import com.ecommerce.order.domain.dto.OrderCartItemDto;
 import com.ecommerce.order.domain.dto.OrderDto;
 import com.ecommerce.order.domain.dto.OrderItemCancelDto;
 import com.ecommerce.order.domain.dto.OrderItemDto;
 import com.ecommerce.order.domain.dto.OrderListResDto;
 import com.ecommerce.order.domain.entity.Order;
 import com.ecommerce.order.domain.entity.OrderItem;
-import com.ecommerce.order.domain.enums.OrderStatus;
 import com.ecommerce.order.exception.NotEnoughPointException;
-import com.ecommerce.order.exception.OutOfQtyException;
 import com.ecommerce.order.repository.OrderItemRepository;
 import com.ecommerce.order.repository.OrderRepository;
 import com.ecommerce.product.domain.entity.Product;
@@ -33,6 +34,7 @@ public class OrderService {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final OrderItemRepository orderItemRepository;
+    private final CartItemRepository cartItemRepository;
 
     @Transactional(readOnly = true)
     public Page<OrderListResDto> getOrders(String email, Pageable pageable) {
@@ -58,6 +60,8 @@ public class OrderService {
         return dto;
     }
 
+    //Todo: details 추가해야됨
+
     @Transactional
     public void order(String email, OrderDto dto) {
         Member member = memberRepository.findByEmail(email)
@@ -66,31 +70,46 @@ public class OrderService {
         Product product = productRepository.findById(dto.getProductId())
             .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다."));
 
-        if (product.getPrice() > member.getPoint()) {
-            throw new NotEnoughPointException();
-        }
-
-        if (dto.getQty() > product.getQty()) {
-            throw new OutOfQtyException();
-        }
-
         int totalPrice = product.getPrice() * dto.getQty() + product.getDeliveryCharge();
 
-        OrderItem orderItem = OrderItem.builder()
-            .product(product)
-            .price(totalPrice)
-            .qty(dto.getQty())
-            .status(OrderStatus.ORDER)
+        validateMemberPoint(totalPrice, member);
+
+        OrderItem orderItem = OrderItem.createOrderItem(product, dto.getQty());
+
+        Order order = Order.builder()
+            .member(member)
             .build();
+        order.addOrderItem(orderItem);
+
+        member.charge(totalPrice);
+
+        orderRepository.save(order);
+    }
+
+    @Transactional
+    public void cartOrders(String email, OrderCartItemDto dto) {
+        Member member = memberRepository.findByEmail(email)
+            .orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
+
+        List<CartItem> cartItems = cartItemRepository.findAllById(dto.getOrderIds());
+
+        int totalPrice = cartItems.stream().mapToInt(CartItem::getPrice).sum();
+
+        validateMemberPoint(totalPrice, member);
 
         Order order = Order.builder()
             .member(member)
             .build();
 
-        order.addOrderItem(orderItem);
-        member.charge(totalPrice);
+        cartItems.forEach(cartItem -> {
+            OrderItem orderItem = OrderItem.createOrderItem(cartItem.getProduct(), cartItem.getQty());
+            order.addOrderItem(orderItem);
+        });
 
+        member.charge(totalPrice);
         orderRepository.save(order);
+
+        cartItemRepository.deleteAll(cartItems);
     }
 
     public void cancel(String email, OrderItemCancelDto dto) {
@@ -103,4 +122,10 @@ public class OrderService {
         orderItemRepository.save(orderItem);
     }
 
+
+    private void validateMemberPoint(int totalPrice, Member member) {
+        if (totalPrice > member.getPoint()) {
+            throw new NotEnoughPointException();
+        }
+    }
 }
