@@ -61,10 +61,12 @@ public class CartService {
         }
 
         Cart cart = cartRepository.findByMemberEmail(member.getEmail())
-            .orElseGet(() -> Cart.builder()
-                .member(member)
-                .cartItems(new ArrayList<>())
-                .build());
+            .orElseGet(() -> {
+                Cart newCart = Cart.builder()
+                    .member(member)
+                    .build();
+                return cartRepository.save(newCart);
+            });
 
         CartItem cartItem = CartItem.builder()
             .cart(cart)
@@ -73,9 +75,7 @@ public class CartService {
             .price(product.getPrice() * dto.getQty())
             .build();
 
-        cart.addCartItem(cartItem);
-
-        cartRepository.save(cart);
+        cartItemRepository.save(cartItem);
     }
 
     public void updateCartItem(String email, CartItemUpdateDto dto) {
@@ -101,9 +101,7 @@ public class CartService {
         CartItem cartItem = cartItemRepository.findByIdAndCartId(dto.getId(), cart.getId())
             .orElseThrow(() -> new NoSuchElementException("장바구니에 해당 상품이 존재하지 않습니다."));
 
-        cartItem.delete();
-
-        cartItemRepository.save(cartItem);
+        cartItemRepository.delete(cartItem);
     }
 
     public void deleteSelectedCartItems(String email, CartItemsDeleteDto dto) {
@@ -113,10 +111,7 @@ public class CartService {
         List<CartItem> cartItems = cartItemRepository.findAllByIdInAndCartId(dto.getIds(), cart.getId())
             .orElseThrow(() -> new NoSuchElementException("장바구니에 해당 상품이 존재하지 않습니다."));
 
-        cartItems.forEach(CartItem::delete);
-
-        cartItemRepository.saveAll(cartItems);
+        cartItemRepository.deleteAll(cartItems);
     }
 
-    // TODO: 장바구니에 담긴 목록 구매 구현해야함
 }

@@ -23,7 +23,6 @@ import org.hibernate.annotations.SQLRestriction;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@SQLRestriction("deleted_at IS NULL")
 public class CartItem extends BaseTime {
 
     @Id
@@ -44,15 +43,9 @@ public class CartItem extends BaseTime {
     @Column(nullable = false)
     private int price;
 
-    @Column
-    private LocalDateTime deletedAt;
-
     public void update(int price ,int qty) {
         this.price = price;
         this.qty = qty;
     }
 
-    public void delete() {
-        this.deletedAt = LocalDateTime.now();
-    }
 }
