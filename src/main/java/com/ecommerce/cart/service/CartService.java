@@ -108,9 +108,12 @@ public class CartService {
         Cart cart = cartRepository.findByMemberEmail(email)
             .orElseThrow(() -> new NoSuchElementException("장바구니가 존재하지 않습니다."));
 
-        List<CartItem> cartItems = cartItemRepository.findAllByIdInAndCartId(dto.getIds(), cart.getId())
-            .orElseThrow(() -> new NoSuchElementException("장바구니에 해당 상품이 존재하지 않습니다."));
+        List<CartItem> cartItems = cartItemRepository.findAllByIdInAndCartId(dto.getIds(),
+            cart.getId());
 
+        if (cartItems.isEmpty()) {
+            throw new NoSuchElementException("장바구니에 해당 상품이 존재하지 않습니다.");
+        }
         cartItemRepository.deleteAll(cartItems);
     }
 

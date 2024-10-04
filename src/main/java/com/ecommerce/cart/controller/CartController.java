@@ -7,6 +7,7 @@ import com.ecommerce.cart.domain.dto.CartItemUpdateDto;
 import com.ecommerce.cart.domain.dto.CartItemsDeleteDto;
 import com.ecommerce.cart.service.CartService;
 import com.ecommerce.global.security.auth.PrincipalDetails;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,7 +38,7 @@ public class CartController {
 
     @PostMapping("/add")
     public ResponseEntity<String> addCartItem(@AuthenticationPrincipal PrincipalDetails principalDetails,
-        @RequestBody CartItemAddDto dto) {
+        @RequestBody @Valid CartItemAddDto dto) {
 
         cartService.addCartItem(principalDetails.getUsername(), dto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -46,7 +47,7 @@ public class CartController {
 
     @PatchMapping("/update")
     public ResponseEntity<Void> updateCartItem(@AuthenticationPrincipal PrincipalDetails principalDetails,
-        @RequestBody CartItemUpdateDto dto) {
+        @RequestBody @Valid CartItemUpdateDto dto) {
 
         cartService.updateCartItem(principalDetails.getUsername(), dto);
         return ResponseEntity.ok().build();
@@ -54,7 +55,7 @@ public class CartController {
 
     @PostMapping("/delete")
     public ResponseEntity<Void> deleteCartItem(@AuthenticationPrincipal PrincipalDetails principalDetails,
-        @RequestBody CartItemDeleteDto dto) {
+        @RequestBody @Valid CartItemDeleteDto dto) {
         cartService.deleteCartItem(principalDetails.getUsername(), dto);
         return ResponseEntity.ok().build();
     }
@@ -62,7 +63,7 @@ public class CartController {
     @DeleteMapping("/delete/selected")
     public ResponseEntity<Void> deleteSelectedCartItems(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
-        @RequestBody CartItemsDeleteDto dto) {
+        @RequestBody @Valid CartItemsDeleteDto dto) {
 
         cartService.deleteSelectedCartItems(principalDetails.getUsername(), dto);
         return ResponseEntity.ok().build();

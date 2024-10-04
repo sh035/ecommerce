@@ -15,6 +15,7 @@ import com.ecommerce.member.exception.DuplicatedPasswordException;
 import com.ecommerce.member.exception.DuplicatedPhoneException;
 import com.ecommerce.member.exception.PasswordMatchFailException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,15 @@ public class GlobalExceptionHandler {
             .collect(Collectors.toList());
 
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<String> handleNoSuchElementException(NoSuchElementException e) {
+
+        log.error("NoSuchElementException", e);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(e.getMessage());
     }
 
     @ExceptionHandler(DuplicatedCategoryException.class)
